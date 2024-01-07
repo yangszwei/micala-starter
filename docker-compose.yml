@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo
+    command: ["mongod", "--config", "/etc/mongo/mongod.conf", "--replSet", "rs0"]
+    restart: unless-stopped
+    healthcheck:
+        test: ["CMD-SHELL", "echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017 --quiet || exit 1"]
+        interval: 30s
+        timeout: 30s
+        retries: 3
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./configs/mongo:/etc/mongo
+      - ./data/mongo:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-express:
+    image: mongo-express
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongo:27017/?authSource=admin&directConnection=true&readPreference=secondary
+    ports:
+      - "8081:8081"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.1
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: "2G"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    healthcheck:
+        test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+        interval: 30s
+        timeout: 30s
+        retries: 3
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./configs/elasticsearch/radlexterm.txt:/usr/share/elasticsearch/config/term/radlexterm.txt:ro
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.8.1
+    platform: linux/amd64
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - XPACK_MONITORING_ENABLED=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - "5601:5601"
