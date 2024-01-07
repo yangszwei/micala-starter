@@ -5,7 +5,7 @@
 You can start the Docker Compose project with zero configuration by running:
 
 ```shell
-$ docker-compose up -d
+$ docker compose up -d
 ```
 
 Mongo Express is available at http://localhost:8081, and Kibana at http://localhost:5601.
