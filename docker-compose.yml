@@ -2,11 +2,11 @@ version: "3.9"
 
 services:
   mongo:
-    image: mongo
+    image: mongo:4.4
     command: ["mongod", "--config", "/etc/mongo/mongod.conf", "--replSet", "rs0"]
     restart: unless-stopped
     healthcheck:
-        test: ["CMD-SHELL", "echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017 --quiet || exit 1"]
+        test: ["CMD-SHELL", "echo 'db.runCommand(\"ping\").ok' | mongo localhost:27017 --quiet || exit 1"]
         interval: 30s
         timeout: 30s
         retries: 3
