@@ -68,3 +68,13 @@ services:
       retries: 3
     ports:
       - "5601:5601"
+
+  esconnector:
+    build: ./esconnector
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy

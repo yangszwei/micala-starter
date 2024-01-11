@@ -1,0 +1,49 @@
+{
+    "mongodb": {
+        "m_database": "Micala",
+        "m_collectionname": "imagingstudies",
+        "m_filterfilds": null,
+        "m_returnfilds": {
+            "report.Records.FULLTEXT" : 1 , 
+            "report.sID" : 1 , 
+            "report.pID" : 1 ,
+            "report.category" : 1 , 
+            "subject" : 1 , 
+            "resourceType" : 1 ,
+            "identifier" : 1 ,
+            "status" : 1 ,
+            "started" : 1 ,
+            "series" : 1 ,
+            "dicomJson" : 1 , 
+            "id" : 1
+        },
+        "m_extendfilds": null,
+        "m_extendinit": null,
+        "m_connection": {
+            "m_servers": [
+                "localhost:27017"
+            ],
+            "m_authentication": {
+                "username": "root",
+                "password": "root",
+                "authsource": "admin",
+                "replicaset": "rs0",
+                "ssl": false
+            }
+        },
+        "m_url": null,
+        "m_documentsinbatch": 5000,
+        "m_delaytime": 500,
+        "max_attachment_size":5242880
+    },
+    "elasticsearch": {
+        "e_index": "my-testimagingstudy",
+        "e_type": "_doc",
+        "e_connection": {
+            "e_server": "http://localhost:9200",
+            "e_httpauth": null
+        },
+        "e_pipeline": null,
+        "e_iscontainattachment": false
+    }
+}
