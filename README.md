@@ -16,6 +16,14 @@ Mongo Express is available at http://localhost:8081, and Kibana at http://localh
 |---------|----------|----------|
 | MongoDB | root     | root     |
 
+## Creating indices for Elasticsearch
+
+You can create indices for Elasticsearch by running:
+
+```shell
+$ ./scripts/create-indices.py
+```
+
 ## Activating the Micala user
 
 There is a helper script that helps you activate the Micala user after registering. You can run it with:
