@@ -29,17 +29,22 @@ def create_index(index, host="http://localhost:9200", force=False):
         return
     print(f"Creating index {index}...")
     headers = {'Content-Type': 'application/json'}
-    with open(f"../configs/elasticsearch/indices/{index}.json") as f:
-        send_request(f"/{index}", host, "PUT", headers, json.load(f))
-    with open(f"../configs/elasticsearch/indices/{index}-pipeline.json") as f:
-        send_request(f"/_ingest/pipeline/{index}", host, "PUT", headers, json.load(f))
+    with open(f"../configs/elasticsearch/indices/{index}.json", 'r', encoding='utf-8-sig') as f:
+        send_request(f"/{index}", host, "PUT", headers, f.read())
+    with open(f"../configs/elasticsearch/indices/{index}-pipeline.json", 'r', encoding='utf-8-sig') as f:
+        send_request(f"/_ingest/pipeline/{index}-pipeline", host, "PUT", headers, f.read())
 
 
 def get_index(index, host="http://localhost:9200"):
     """
     Get all indices
     """
-    return send_request(f"/{index}", host=host, silent=True)
+    response = send_request(f"/{index}", host=host, silent=True)
+    if "error" in response:
+        if response["error"]["type"] == "index_not_found_exception":
+            return None
+        raise Exception(response["error"]["reason"])
+    return response
 
 
 def upload_docs(index, filepath, host="http://localhost:9200", force=False):
@@ -53,12 +58,14 @@ def upload_docs(index, filepath, host="http://localhost:9200", force=False):
             return
     print(f"Uploading documents to index {index}...")
 
+    path = f"/{index}/_bulk?pipeline={index}-pipeline"
+    headers={'Content-Type': 'application/x-ndjson'}
     data = ""
-    with open(filepath, encoding='utf-8') as f:
-        for row in csv.DictReader(f):
+    with open(filepath, 'r', encoding='utf-8-sig') as file:
+        for row in file:
             data += json.dumps({"index": {}}) + "\n"
-            data += json.dumps(row) + "\n"
-    send_request(f"/{index}/_bulk", host=host, method="POST", data=data)
+            data += json.dumps({"message": row.strip()}) + "\n"
+    send_request(path, host=host, method="POST", headers=headers, data=data)
 
 
 if __name__ == "__main__":
